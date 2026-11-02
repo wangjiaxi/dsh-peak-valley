@@ -236,9 +236,37 @@ window.__ModuleLoader__.load({
 			'.pv-gap{color:var(--dsw-alias-label-tertiary,#9aa0a6)}',
 			'.pv-text{color:var(--dsw-alias-label-secondary,#5f6673)}',
 			'.pv-tip{position:absolute;bottom:calc(100% + 8px);left:50%;z-index:30;display:flex;flex-direction:column;gap:2px;width:max-content;max-width:min(420px,calc(100vw - 32px));padding:6px 9px;border-radius:8px;background:rgba(24,28,36,.94);color:#fff;font-size:12px;line-height:1.5;text-align:left;opacity:0;pointer-events:none;transform:translate(-50%,2px);transition:opacity .12s ease,transform .12s ease}',
-			'.pv-chip:hover .pv-tip{opacity:1;transform:translate(-50%,0)}'
+			'.pv-chip:hover .pv-tip{opacity:1;transform:translate(-50%,0)}',
+			// 输入框下方那一行是宿主的 flex 车道（不换行、居中），条目一多、屏一窄就会
+			// 顶出卡片外。这里只允许它换行——一行放得下时换行不产生任何变化。
+			'[data-composer-dock]{flex-wrap:wrap;row-gap:2px}',
+			// 窄屏：字号收一档，提示气泡改成右对齐（否则靠近右边缘时会被切掉）。
+			'@media (max-width:767px){.pv-chip{font-size:12px;padding:0 6px;gap:4px}.pv-tip{left:auto;right:0;transform:translate(0,2px);max-width:calc(100vw - 24px)}.pv-chip:hover .pv-tip{transform:translate(0,0)}}'
 		].join('\n');
 		// #endregion
+
+		/**
+		 * 是否是窄屏（和 dsh-web-mobile 用同一个断点）。
+		 *
+		 * 只影响文字长短：窄屏把「峰时 · 」这段省掉，只留「距峰时 00:45:12」。
+		 *
+		 * @returns {boolean} 窄屏为 true。
+		 */
+		function useNarrow() {
+			const query = '(max-width: 767px)';
+			const [narrow, setNarrow] = React.useState(() => (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+				? window.matchMedia(query).matches
+				: false);
+			React.useEffect(() => {
+				if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+				const media = window.matchMedia(query);
+				const onChange = () => setNarrow(media.matches);
+				onChange();
+				media.addEventListener('change', onChange);
+				return () => media.removeEventListener('change', onChange);
+			}, []);
+			return narrow;
+		}
 
 		// #region 组件
 		/**
@@ -254,6 +282,7 @@ window.__ModuleLoader__.load({
 				return () => clearInterval(timer);
 			}, []);
 
+			const narrow = useNarrow();
 			const current = periodAt(now);
 			const peak = current.kind === 'peak';
 			const target = nextSwitch(now, current.kind);
@@ -274,8 +303,8 @@ window.__ModuleLoader__.load({
 				'aria-label': (peak ? t('peak') : t('off')) + ' ' + t(peak ? 'toOff' : 'toPeak') + ' ' + (remaining === null ? t('idle') : remaining)
 			},
 				h('span', { className: 'pv-dot' }),
-				h('span', { className: 'pv-period' }, peak ? t('peak') : t('off')),
-				h('span', { className: 'pv-gap' }, '·'),
+				narrow ? null : h('span', { className: 'pv-period' }, peak ? t('peak') : t('off')),
+				narrow ? null : h('span', { className: 'pv-gap' }, '·'),
 				h('span', { className: 'pv-text' },
 					(peak ? t('toOff') : t('toPeak')) + ' ' + (remaining === null ? t('idle') : remaining)
 				),
