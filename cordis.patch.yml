@@ -1,0 +1,7 @@
+# dsh-peak-valley bundle patch.
+#
+# 一行：整个功能都在客户端（输入框下方那一行里的小倒计时），
+# 宿主端是个空插件，只为让加载器有个东西可挂。
+- insert:
+    - id: peak-valley
+      name: dsh-peak-valley

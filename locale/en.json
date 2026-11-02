@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Peak-hours countdown",
+    "description": "Shows a live peak / off-peak countdown beside the context meter under the composer: peak is 09:00–12:00 and 14:00–18:00 Beijing time on workdays, everything else — weekends and Chinese public holidays included — is off-peak."
+  }
+}
