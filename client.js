@@ -229,16 +229,18 @@ window.__ModuleLoader__.load({
 		// #region styles
 		const CSS = [
 			'.pv-chip{position:relative;display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:var(--dsw-radius-sm);font-family:inherit;font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));white-space:nowrap;font-variant-numeric:tabular-nums;flex:none;cursor:default}',
-			// 峰时红灯、谷时绿灯，都是呼吸灯：颜色由 .pv-chip 的 color 决定，灯用 currentColor 取。
-			'.pv-chip.pv-peak{color:var(--dsw-alias-state-error-primary,#e5484d);color:color-mix(in srgb,var(--dsw-alias-state-error-primary,#e5484d) 72%,var(--dsw-alias-label-primary,#1f2328))}',
-			'.pv-chip.pv-off{color:var(--dsw-alias-state-success-primary,#17b26a);color:color-mix(in srgb,var(--dsw-alias-state-success-primary,#17b26a) 64%,var(--dsw-alias-label-primary,#1f2328))}',
+			// 灯的取色走 --pv-lamp：用状态色原色（红 #ec1313 / 绿 #22c55e），不掺灰，够艳。
+			'.pv-chip{--pv-lamp:var(--dsw-alias-state-success-primary,#22c55e)}',
+			// 文字另算：状态色压深一档，浅色背景上 13px 才读得清（灯不必管可读性）。
+			'.pv-chip.pv-peak{--pv-lamp:var(--dsw-alias-state-error-primary,#ec1313);color:color-mix(in srgb,var(--dsw-alias-state-error-primary,#ec1313) 80%,var(--dsw-alias-label-primary,#1f2328))}',
+			'.pv-chip.pv-off{--pv-lamp:var(--dsw-alias-state-success-primary,#22c55e);color:color-mix(in srgb,var(--dsw-alias-state-success-primary,#22c55e) 70%,var(--dsw-alias-label-primary,#1f2328))}',
 			// 灯体：7px 圆点 + 外面一圈同色的光晕，两段动画错开节奏做「呼吸」。
-			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 4px 0 currentColor;animation:pv-breathe 2.6s ease-in-out infinite}',
-			'.pv-dot:after{content:"";position:absolute;inset:-2px;border-radius:50%;background:currentColor;animation:pv-halo 2.6s ease-in-out infinite}',
-			'@keyframes pv-breathe{0%,100%{opacity:.4;box-shadow:0 0 2px 0 currentColor}50%{opacity:1;box-shadow:0 0 9px 1px currentColor}}',
-			'@keyframes pv-halo{0%,100%{transform:scale(.55);opacity:0}45%{transform:scale(1.35);opacity:.32}70%{transform:scale(1.8);opacity:0}}',
+			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:50%;background:var(--pv-lamp,#22c55e);box-shadow:0 0 6px 1px var(--pv-lamp,#22c55e);animation:pv-breathe 2.6s ease-in-out infinite}',
+			'.pv-dot:after{content:"";position:absolute;inset:-2px;border-radius:50%;background:var(--pv-lamp,#22c55e);animation:pv-halo 2.6s ease-in-out infinite}',
+			'@keyframes pv-breathe{0%,100%{opacity:.55;box-shadow:0 0 3px 0 var(--pv-lamp,#22c55e)}50%{opacity:1;box-shadow:0 0 12px 2px var(--pv-lamp,#22c55e)}}',
+			'@keyframes pv-halo{0%,100%{transform:scale(.55);opacity:0}45%{transform:scale(1.45);opacity:.45}70%{transform:scale(1.95);opacity:0}}',
 			// 关了动效就退化成一颗常亮的灯，不留黑洞。
-			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1;box-shadow:0 0 5px 0 currentColor}.pv-dot:after{display:none}}',
+			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1;box-shadow:0 0 8px 1px var(--pv-lamp,#22c55e)}.pv-dot:after{display:none}}',
 			'.pv-period{font-weight:500}',
 			'.pv-gap{color:var(--dsw-alias-label-tertiary,#9aa0a6)}',
 			'.pv-text{color:var(--dsw-alias-label-secondary,#5f6673)}',
