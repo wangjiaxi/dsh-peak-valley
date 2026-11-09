@@ -229,13 +229,20 @@ window.__ModuleLoader__.load({
 		// #region styles
 		const CSS = [
 			'.pv-chip{position:relative;display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:var(--dsw-radius-sm);font-family:inherit;font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));white-space:nowrap;font-variant-numeric:tabular-nums;flex:none;cursor:default}',
-			'.pv-chip.pv-peak{color:var(--dsw-alias-state-warn-primary,#f5a524)}',
-			'.pv-chip.pv-off{color:var(--dsw-alias-state-success-primary,#17b26a)}',
-			'.pv-dot{flex:none;width:6px;height:6px;border-radius:50%;background:currentColor}',
+			// 峰时红灯、谷时绿灯，都是呼吸灯：颜色由 .pv-chip 的 color 决定，灯用 currentColor 取。
+			'.pv-chip.pv-peak{color:var(--dsw-alias-state-error-primary,#e5484d);color:color-mix(in srgb,var(--dsw-alias-state-error-primary,#e5484d) 72%,var(--dsw-alias-label-primary,#1f2328))}',
+			'.pv-chip.pv-off{color:var(--dsw-alias-state-success-primary,#17b26a);color:color-mix(in srgb,var(--dsw-alias-state-success-primary,#17b26a) 64%,var(--dsw-alias-label-primary,#1f2328))}',
+			// 灯体：7px 圆点 + 外面一圈同色的光晕，两段动画错开节奏做「呼吸」。
+			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 4px 0 currentColor;animation:pv-breathe 2.6s ease-in-out infinite}',
+			'.pv-dot:after{content:"";position:absolute;inset:-2px;border-radius:50%;background:currentColor;animation:pv-halo 2.6s ease-in-out infinite}',
+			'@keyframes pv-breathe{0%,100%{opacity:.4;box-shadow:0 0 2px 0 currentColor}50%{opacity:1;box-shadow:0 0 9px 1px currentColor}}',
+			'@keyframes pv-halo{0%,100%{transform:scale(.55);opacity:0}45%{transform:scale(1.35);opacity:.32}70%{transform:scale(1.8);opacity:0}}',
+			// 关了动效就退化成一颗常亮的灯，不留黑洞。
+			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1;box-shadow:0 0 5px 0 currentColor}.pv-dot:after{display:none}}',
 			'.pv-period{font-weight:500}',
 			'.pv-gap{color:var(--dsw-alias-label-tertiary,#9aa0a6)}',
 			'.pv-text{color:var(--dsw-alias-label-secondary,#5f6673)}',
-			'.pv-tip{position:absolute;bottom:calc(100% + 8px);left:50%;z-index:30;display:flex;flex-direction:column;gap:2px;width:max-content;max-width:min(420px,calc(100vw - 32px));padding:6px 9px;border-radius:8px;background:rgba(24,28,36,.94);color:#fff;font-size:12px;line-height:1.5;text-align:left;opacity:0;pointer-events:none;transform:translate(-50%,2px);transition:opacity .12s ease,transform .12s ease}',
+			'.pv-tip{position:absolute;bottom:calc(100% + 8px);left:50%;z-index:30;display:flex;flex-direction:column;gap:2px;width:max-content;max-width:min(420px,calc(100vw - 32px));padding:6px 9px;border-radius:8px;background:var(--dsw-alias-tooltip-bg,rgba(24,28,36,.94));color:var(--dsw-alias-toast-label,#fff);box-shadow:var(--dsw-shadow-lv3,0 4px 12px rgba(0,0,0,.18));font-size:12px;line-height:1.5;text-align:left;opacity:0;pointer-events:none;transform:translate(-50%,2px);transition:opacity .12s ease,transform .12s ease}',
 			'.pv-chip:hover .pv-tip{opacity:1;transform:translate(-50%,0)}',
 			// 输入框下方那一行是宿主的 flex 车道（不换行、居中），条目一多、屏一窄就会
 			// 顶出卡片外。这里只允许它换行——一行放得下时换行不产生任何变化。
