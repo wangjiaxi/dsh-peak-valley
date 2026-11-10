@@ -1,6 +1,6 @@
 {
   "name": "dsh-peak-valley",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "description": "在 DSH 输入框下方、上下文指示器右边显示峰时 / 谷时倒计时：北京时间工作日 9–12、14–18 点为峰时，其余（含周末与中国法定节假日）为谷时。",
   "keywords": [

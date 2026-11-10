@@ -234,13 +234,16 @@ window.__ModuleLoader__.load({
 			// 文字另算：状态色压深一档，浅色背景上 13px 才读得清（灯不必管可读性）。
 			'.pv-chip.pv-peak{--pv-lamp:var(--dsw-alias-state-error-primary,#ec1313);color:color-mix(in srgb,var(--dsw-alias-state-error-primary,#ec1313) 80%,var(--dsw-alias-label-primary,#1f2328))}',
 			'.pv-chip.pv-off{--pv-lamp:var(--dsw-alias-state-success-primary,#22c55e);color:color-mix(in srgb,var(--dsw-alias-state-success-primary,#22c55e) 70%,var(--dsw-alias-label-primary,#1f2328))}',
-			// 灯体：7px 圆点 + 外面一圈同色的光晕，两段动画错开节奏做「呼吸」。
-			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:50%;background:var(--pv-lamp,#22c55e);box-shadow:0 0 6px 1px var(--pv-lamp,#22c55e);animation:pv-breathe 2.6s ease-in-out infinite}',
-			'.pv-dot:after{content:"";position:absolute;inset:-2px;border-radius:50%;background:var(--pv-lamp,#22c55e);animation:pv-halo 2.6s ease-in-out infinite}',
-			'@keyframes pv-breathe{0%,100%{opacity:.55;box-shadow:0 0 3px 0 var(--pv-lamp,#22c55e)}50%{opacity:1;box-shadow:0 0 12px 2px var(--pv-lamp,#22c55e)}}',
-			'@keyframes pv-halo{0%,100%{transform:scale(.55);opacity:0}45%{transform:scale(1.45);opacity:.45}70%{transform:scale(1.95);opacity:0}}',
+			// 灯体：7px 实心圆 + 外面一圈径向渐变的光晕，两段动画错开节奏做「呼吸」。
+			// 光晕不用 box-shadow —— iOS 上「小尺寸 + 圆角 + 动画 box-shadow」会被光栅化
+			// 成方框（2026-11-10 真机截图：绿灯变成了一个圆角方块）。径向渐变永远跟着
+			// border-radius 走，加 corner-shape:round 兜住宿主可能设的 squircle。
+			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:999px;corner-shape:round;background:var(--pv-lamp,#22c55e);animation:pv-breathe 2.6s ease-in-out infinite}',
+			'.pv-dot:after{content:"";position:absolute;inset:-6px;border-radius:999px;corner-shape:round;pointer-events:none;background:radial-gradient(closest-side,var(--pv-lamp,#22c55e),transparent);background:radial-gradient(closest-side,color-mix(in srgb,var(--pv-lamp,#22c55e) 70%,transparent),transparent 100%);animation:pv-halo 2.6s ease-in-out infinite}',
+			'@keyframes pv-breathe{0%,100%{opacity:.62;transform:scale(.86)}50%{opacity:1;transform:scale(1.06)}}',
+			'@keyframes pv-halo{0%,100%{transform:scale(.72);opacity:0}45%{transform:scale(1.12);opacity:.55}72%{transform:scale(1.42);opacity:0}}',
 			// 关了动效就退化成一颗常亮的灯，不留黑洞。
-			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1;box-shadow:0 0 8px 1px var(--pv-lamp,#22c55e)}.pv-dot:after{display:none}}',
+			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1}.pv-dot:after{animation:none;opacity:.45;transform:none}}',
 			'.pv-period{font-weight:500}',
 			'.pv-gap{color:var(--dsw-alias-label-tertiary,#9aa0a6)}',
 			'.pv-text{color:var(--dsw-alias-label-secondary,#5f6673)}',
