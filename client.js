@@ -234,16 +234,16 @@ window.__ModuleLoader__.load({
 			// 文字另算：状态色压深一档，浅色背景上 13px 才读得清（灯不必管可读性）。
 			'.pv-chip.pv-peak{--pv-lamp:var(--dsw-alias-state-error-primary,#ec1313);color:color-mix(in srgb,var(--dsw-alias-state-error-primary,#ec1313) 80%,var(--dsw-alias-label-primary,#1f2328))}',
 			'.pv-chip.pv-off{--pv-lamp:var(--dsw-alias-state-success-primary,#22c55e);color:color-mix(in srgb,var(--dsw-alias-state-success-primary,#22c55e) 70%,var(--dsw-alias-label-primary,#1f2328))}',
-			// 灯体：7px 实心圆 + 外面一圈径向渐变的光晕，两段动画错开节奏做「呼吸」。
-			// 光晕不用 box-shadow —— iOS 上「小尺寸 + 圆角 + 动画 box-shadow」会被光栅化
-			// 成方框（2026-11-10 真机截图：绿灯变成了一个圆角方块）。径向渐变永远跟着
-			// border-radius 走，加 corner-shape:round 兜住宿主可能设的 squircle。
-			'.pv-dot{position:relative;flex:none;width:7px;height:7px;border-radius:999px;corner-shape:round;background:var(--pv-lamp,#22c55e);animation:pv-breathe 2.6s ease-in-out infinite}',
-			'.pv-dot:after{content:"";position:absolute;inset:-6px;border-radius:999px;corner-shape:round;pointer-events:none;background:radial-gradient(closest-side,var(--pv-lamp,#22c55e),transparent);background:radial-gradient(closest-side,color-mix(in srgb,var(--pv-lamp,#22c55e) 70%,transparent),transparent 100%);animation:pv-halo 2.6s ease-in-out infinite}',
-			'@keyframes pv-breathe{0%,100%{opacity:.62;transform:scale(.86)}50%{opacity:1;transform:scale(1.06)}}',
-			'@keyframes pv-halo{0%,100%{transform:scale(.72);opacity:0}45%{transform:scale(1.12);opacity:.55}72%{transform:scale(1.42);opacity:0}}',
+			// 灯：**一个 20px 的盒子**，靠一层径向渐变自己画出「实心核 + 柔光晕」。
+			// 两个坑都躲开了：
+			//   - 不用 box-shadow：iOS 会把「小尺寸 + 圆角 + 动画阴影」光栅化成方框；
+			//   - 不用伸出盒子的伪元素：手机端那一行（或它上面的卡片）可能被 overflow
+			//     裁掉，光晕会被切成硬边，看起来就和桌面端不是一个东西。
+			// 渐变全部画在盒子内，桌面和手机是**同一段 CSS**，长得一模一样。
+			'.pv-dot{flex:none;width:20px;height:20px;border-radius:999px;corner-shape:round;background:radial-gradient(closest-side,var(--pv-lamp,#22c55e) 0 34%,transparent 84%);background:radial-gradient(closest-side,var(--pv-lamp,#22c55e) 0 34%,color-mix(in srgb,var(--pv-lamp,#22c55e) 58%,transparent) 60%,color-mix(in srgb,var(--pv-lamp,#22c55e) 0%,transparent) 86%);animation:pv-breathe 2.6s ease-in-out infinite}',
+			'@keyframes pv-breathe{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1)}}',
 			// 关了动效就退化成一颗常亮的灯，不留黑洞。
-			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1}.pv-dot:after{animation:none;opacity:.45;transform:none}}',
+			'@media (prefers-reduced-motion:reduce){.pv-dot{animation:none;opacity:1}}',
 			'.pv-period{font-weight:500}',
 			'.pv-gap{color:var(--dsw-alias-label-tertiary,#9aa0a6)}',
 			'.pv-text{color:var(--dsw-alias-label-secondary,#5f6673)}',
@@ -253,7 +253,7 @@ window.__ModuleLoader__.load({
 			// 顶出卡片外。这里只允许它换行——一行放得下时换行不产生任何变化。
 			'[data-composer-dock]{flex-wrap:wrap;row-gap:2px}',
 			// 窄屏：只留一颗灯，整块收成 12px 见方，不再占那一行的地方。
-			'@media (max-width:767px){.pv-chip{font-size:12px;padding:0 6px;gap:4px}.pv-chip.pv-bare{padding:0;gap:0;min-height:18px}.pv-bare .pv-dot{width:8px;height:8px}.pv-tip{left:auto;right:0;transform:translate(0,2px);max-width:calc(100vw - 24px)}.pv-chip:hover .pv-tip{transform:translate(0,0)}}'
+			'@media (max-width:767px){.pv-chip{font-size:12px;padding:0 6px;gap:4px}.pv-chip.pv-bare{padding:0;gap:0}.pv-tip{left:auto;right:0;transform:translate(0,2px);max-width:calc(100vw - 24px)}.pv-chip:hover .pv-tip{transform:translate(0,0)}}'
 		].join('\n');
 		// #endregion
 
