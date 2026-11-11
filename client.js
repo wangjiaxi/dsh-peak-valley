@@ -252,8 +252,8 @@ window.__ModuleLoader__.load({
 			// 输入框下方那一行是宿主的 flex 车道（不换行、居中），条目一多、屏一窄就会
 			// 顶出卡片外。这里只允许它换行——一行放得下时换行不产生任何变化。
 			'[data-composer-dock]{flex-wrap:wrap;row-gap:2px}',
-			// 窄屏：字号收一档，提示气泡改成右对齐（否则靠近右边缘时会被切掉）。
-			'@media (max-width:767px){.pv-chip{font-size:12px;padding:0 6px;gap:4px}.pv-tip{left:auto;right:0;transform:translate(0,2px);max-width:calc(100vw - 24px)}.pv-chip:hover .pv-tip{transform:translate(0,0)}}'
+			// 窄屏：只留一颗灯，整块收成 12px 见方，不再占那一行的地方。
+			'@media (max-width:767px){.pv-chip{font-size:12px;padding:0 6px;gap:4px}.pv-chip.pv-bare{padding:0;gap:0;min-height:18px}.pv-bare .pv-dot{width:8px;height:8px}.pv-tip{left:auto;right:0;transform:translate(0,2px);max-width:calc(100vw - 24px)}.pv-chip:hover .pv-tip{transform:translate(0,0)}}'
 		].join('\n');
 		// #endregion
 
@@ -308,19 +308,23 @@ window.__ModuleLoader__.load({
 				todayParams = { name: current.name };
 			}
 
+			// 窄屏（手机）只留一颗灯：那一行本身已经很挤，倒计时数字会被切掉，
+			// 悬停气泡在触屏上也只会「粘」在屏幕上，所以文字和气泡一起不渲染。
+			const label = (peak ? t('peak') : t('off')) + ' ' + t(peak ? 'toOff' : 'toPeak') + ' ' + (remaining === null ? t('idle') : remaining);
+
 			return h('div', {
-				className: 'pv-chip ' + (peak ? 'pv-peak' : 'pv-off'),
-				role: 'status',
+				className: 'pv-chip ' + (peak ? 'pv-peak' : 'pv-off') + (narrow ? ' pv-bare' : ''),
+				role: narrow ? 'img' : 'status',
 				'aria-live': 'off',
-				'aria-label': (peak ? t('peak') : t('off')) + ' ' + t(peak ? 'toOff' : 'toPeak') + ' ' + (remaining === null ? t('idle') : remaining)
+				'aria-label': label
 			},
 				h('span', { className: 'pv-dot' }),
 				narrow ? null : h('span', { className: 'pv-period' }, peak ? t('peak') : t('off')),
 				narrow ? null : h('span', { className: 'pv-gap' }, '·'),
-				h('span', { className: 'pv-text' },
+				narrow ? null : h('span', { className: 'pv-text' },
 					(peak ? t('toOff') : t('toPeak')) + ' ' + (remaining === null ? t('idle') : remaining)
 				),
-				h('span', { className: 'pv-tip', role: 'tooltip' },
+				narrow ? null : h('span', { className: 'pv-tip', role: 'tooltip' },
 					h('span', null, t('rule')),
 					h('span', null, t(todayKey, todayParams))
 				)
